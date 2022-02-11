@@ -13,7 +13,7 @@ The raspberry pi model will utilize the PiCamera for various detections and obse
 - Type **pip install django** to download django
 - Type **pip install djangorestframework** to download the REST framework
 - Within the terminal, cd to a directory to store this project
-- Type **git clone https://github.com/Capstone-Projects-2022-Spring/project-delivery-detector** to clone the repo
+- Type **git clone https://github.com/Capstone-Projects-2022-Spring/project-delivery-detector.git** to clone the repo
 - Type **cd project-delivery-detector** 
 - Type **python manage.py runserver 0.0.0.0:8000** to start the development server
 - You can access the server from a web broswer using local host or the machine's public LAN ip. 
