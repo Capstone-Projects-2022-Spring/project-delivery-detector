@@ -14,6 +14,7 @@ router.register(r'groups', views.GroupViewSet)
 urlpatterns = [
     path('', views.HelloWorldSet.as_view({'key': 'queryset'})), 
     path('api/', include(router.urls)),
+    path('postdata/', views.postData),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls)
 ]

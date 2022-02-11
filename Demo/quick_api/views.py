@@ -4,7 +4,9 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
+from django.http import JsonResponse 
 from .rest_serializers import *
+from .forms import *
 from . import models
 
 
@@ -34,6 +36,18 @@ class HelloWorldSet(viewsets.ModelViewSet):
 
     # Handle a HTTP get request, like an API call from a client 
     def get(self, request):
-        model = HelloWorldModel.objects.all()
-        model_list = core_s.serialize('json', model)
+        model = HelloWorldModel.objects.all()           # get all the objects from the db
+        model_list = core_s.serialize('json', model)    # turn the python object into JSON
         return HttpResponse(model_list, content_type="text/json-comment-filtered")
+
+
+# Example handling a HTTP POST request
+# clients will use a post reqeust to submit their data 
+def postData(request):
+    form = NameForm()
+    if request.method == "POST":
+        form = NameForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data['your_name']
+            return render(request, 'quick_api/showdata.html', {'data': data})
+    return render(request, 'quick_api/submit.html', {'form': form})
