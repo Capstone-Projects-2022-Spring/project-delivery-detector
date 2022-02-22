@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('postdata/', views.postData),
     path('getuser/<int:prim_key>/', views.getUserWithPK),
+    path('getuser/<int:prim_key>/<int:box_numb>/', views.checkUserBox),
     path('homepage/', views.exampleHomePage),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls)

@@ -80,3 +80,17 @@ def getUserWithPK(request, prim_key):
      user = UserAccount.objects.get(pk=prim_key)
      user_dict = model_to_dict(user) 
      return JsonResponse(json.loads(json.dumps(user_dict)))
+
+
+# Check if the PK of the user supplied matches the box number
+def checkUserBox(request, prim_key, box_numb):
+    try:
+        user = UserAccount.objects.get(pk=prim_key)
+        box = BoxInfo.objects.get(pk=box_numb)
+    except: 
+        # one of the object below doesnt exist
+        return JsonResponse(json.loads(json.dumps(["LOCK THE BOX!!!! THEY DONT MATCH"])), safe=False)
+    if box_numb == user.box_number_id: # djagno stores the FK with _id at the end, so we can access it w/out going to the DB
+        return JsonResponse(json.loads(json.dumps(["UNLOCK THE BOX!!!!"])), safe=False)
+    else:
+        return JsonResponse(json.loads(json.dumps(["LOCK THE BOX!!!! THEY DONT MATCH"])), safe=False)
