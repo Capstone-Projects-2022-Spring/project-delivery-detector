@@ -1,0 +1,15 @@
+﻿<h1>Example "Home Page"</h1>
+<h2>Illustrates the use of input boxes with different data types</h2>
+
+<style>
+    input {
+        display: block;
+        margin-bottom: 1em;
+    }
+</style>
+
+<form action="/homepage/" method="post">
+    {% csrf_token %}
+    {{ home_form }}
+    <input type="submit" value="Submit">
+</form>

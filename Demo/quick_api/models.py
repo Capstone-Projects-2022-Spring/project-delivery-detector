@@ -5,10 +5,11 @@ class HelloWorldModel(models.Model):
     hello_world_str = models.CharField(max_length=100)
     model_info = models.CharField(max_length=300)
 
-#class UserAccount(models.Model):
-    #first_name = models.CharField(max_length=100)
-    #last_name = models.CharField(max_length=100)
-    #will be adding other fields like email and phone number
+class UserAccount(models.Model):
+    user_name = models.CharField(max_length=200)
+    user_email = models.EmailField(max_length=300)
+    user_phone = models.BigIntegerField()
+    box_number = models.ForeignKey('BoxInfo', on_delete=models.CASCADE)
 
-#class BoxNumbers(models.Model):
-    #will be adding other fields like serial number
+class BoxInfo(models.Model):
+    date_made = models.DateField()

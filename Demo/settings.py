@@ -25,7 +25,7 @@ SECRET_KEY = '4@)50l3)8z#mu3vrda*l7-xwp(clt_9dfzuc&7j3x&=n%7n_t@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", socket.gethostbyname(socket.gethostname())]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", socket.gethostbyname(socket.gethostname()), "10.109.27.216"]
 
 # Application definition
 
