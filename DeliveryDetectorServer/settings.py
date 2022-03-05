@@ -77,7 +77,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ebdb',
         'USER': 'detectordb',
-        'PASSWORD': 'detector2022',
+        'PASSWORD': '',
         'HOST': 'aah3jdprmy15xi.cevysf17bhnz.us-east-2.rds.amazonaws.com',
         'PORT': '3306',
     }
