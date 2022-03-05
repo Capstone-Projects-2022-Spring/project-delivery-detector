@@ -21,4 +21,4 @@ class DeliveryDetectorBox():
 
 if __name__ == '__main__':
     box = DeliveryDetectorBox(1)
-    box.check_response()
+    box.check_user_box('test')
