@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Delivery Detector</title>
+</head>
+<body>
+
+    ﻿<h1>Delivery Detector</h1>
+     <h2> {{ title}}</h2>
+    <!-- Add the URL in the action tag-->
+    <form action="/sign_up/" method="post" style="display:inline-block">
+        {% csrf_token %}
+        {% for field in form  %}
+            {{ field.errors }}
+            <li> {{ field.label_tag }} {{ field }} </li>
+        {% endfor %}
+        <input type="submit" value="Submit">
+    </form>
+
+</body>
+</html>
