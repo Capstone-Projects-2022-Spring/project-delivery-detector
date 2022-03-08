@@ -4,7 +4,7 @@ import requests
 # The device will be making various API calls to the server 
 class DeliveryDetectorBox():
 
-    # Constructor 
+    # Constructor       
     def __init__(self, box_num):
         self.box_number = box_num
 
