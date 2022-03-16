@@ -28,7 +28,6 @@ def read_qr_code():
             print("QR code not detected")
 
 
-
 if __name__ == '__main__':
     read_qr_code()
 
