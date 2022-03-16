@@ -1,3 +1,4 @@
+# Type 'sudo python3 qr_code_reader.py' to run this file  
 import cv2
 from api_call import DeliveryDetectorBox
 
