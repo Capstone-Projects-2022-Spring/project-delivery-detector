@@ -6,7 +6,7 @@ import pyqrcode
 from django.core.files import File  
 from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict
-from django.core.mail import EmailMessage
+from django.core.mail import send_mail, EmailMessage
 from django.shortcuts import render
 from pyqrcode import QRCode
 from .forms import *
@@ -75,18 +75,21 @@ def send_alert(request, name):
     phone = user.user_phone
     email = user.user_email
 
-    # Send an Email
-    send_email = EmailMessage(
-        subject='Delivery Detector Alert',
-        body='This is an alert from the Delivery Detector. Please use the QR-Code provided to open the box',
-        from_email='johnglatts1@hotmail.com',
-        to=[email],
-        #attachments=(qr_name, url, 'image/png')
+    # send the email with the QR code 
+    subject = 'Yoo Delivery Alert!!'
+    message = 'You got a package fool!'
+    qr_code = bytes(user.qr_code.read())
+
+    email = EmailMessage(
+        subject,
+        message,
+        'deliverydetector@gmail.com',
+        [email],
     )
-    send_email.send()
-    # Send a SMS
-    # To-Do
-    # need to set-up a Twilio account - https://www.twilio.com/docs/sms/quickstart/python
+
+    email.attach('your_qr.png', qr_code, 'image/png')
+    email.send()
+
     return HttpResponse("Just sent an alert to Box-Owner!!")
 
 
