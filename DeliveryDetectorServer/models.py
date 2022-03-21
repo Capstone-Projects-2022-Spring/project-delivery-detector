@@ -16,6 +16,6 @@ class BoxInfo(models.Model):
     # need a one to many field or similar, to keep track of all users using this box
 
 class wifi_QR(models.Model):
-    network = models.CharField(max_length=200)
-    password = models.CharField(max_length=200)
-    user_phone = user_phone = models.BigIntegerField()
+    network_name = models.CharField(max_length=200)
+    network_password = models.CharField(max_length=200)
+    user_phone = models.BigIntegerField()

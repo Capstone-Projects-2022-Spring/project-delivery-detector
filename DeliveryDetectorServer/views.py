@@ -49,4 +49,12 @@ def get_user(request, name):
      user_dict = model_to_dict(user) 
      return JsonResponse(json.loads(json.dumps(user_dict)))
 def wifi_QR(request):
-    return render(request, 'DeliveryDetectorServer/wifi_QR.html.html')
+    form = wifi_QR_form()
+    if request.method == 'POST':
+        form = wifi_QR_form(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['network_name']
+            pw = form.cleaned_data['network_password']
+            phone = form.cleaned_data['user_phone']
+            return HttpResponse("Your QR code is on its way!")
+    return render(request, 'DeliveryDetectorServer/wifi_QR.html', {'form': form})
