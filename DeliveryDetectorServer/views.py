@@ -48,3 +48,5 @@ def get_user(request, name):
      user = UserAccount.objects.get(user_name=name)
      user_dict = model_to_dict(user) 
      return JsonResponse(json.loads(json.dumps(user_dict)))
+def wifi_QR(request):
+    return render(request, 'DeliveryDetectorServer/wifi_QR.html.html')

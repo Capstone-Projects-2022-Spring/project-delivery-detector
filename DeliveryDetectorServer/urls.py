@@ -23,4 +23,5 @@ urlpatterns = [
     path('log_in/', views.log_in, name='log_in'),
     path('get_user/<str:name>/', views.get_user),
     path('admin/', admin.site.urls),
+    path('wifi_QR/',views.wifi_QR, name='wifi_QR'),
 ]

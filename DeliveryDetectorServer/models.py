@@ -13,4 +13,9 @@ class BoxInfo(models.Model):
     box_number = models.IntegerField()
     date = models.DateField()
     multi_user = models.BooleanField()
-    # need a one to many field or similar, to keep track of all users using this box 
+    # need a one to many field or similar, to keep track of all users using this box
+
+class wifi_QR(models.Model):
+    network = models.CharField(max_length=200)
+    password = models.CharField(max_length=200)
+    user_phone = user_phone = models.BigIntegerField()
