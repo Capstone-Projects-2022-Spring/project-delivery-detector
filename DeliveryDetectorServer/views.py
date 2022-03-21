@@ -3,12 +3,15 @@ import os
 import json
 import urllib
 import pyqrcode
+import twilio
+import twilio.rest
 from django.core.files import File  
 from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict
 from django.core.mail import send_mail, EmailMessage
 from django.shortcuts import render
 from pyqrcode import QRCode
+from twilio.rest import Client
 from .forms import *
 from .models import *
 
@@ -72,7 +75,7 @@ def create_qr_code(name):
 def send_alert(request, name):
     # Get the UserAccount with the supplied name
     user = UserAccount.objects.get(user_name=name)
-    phone = user.user_phone
+    phone = '1' + str(user.user_phone)
     email = user.user_email
 
     # send the email with the QR code 
@@ -89,6 +92,19 @@ def send_alert(request, name):
 
     email.attach('your_qr.png', qr_code, 'image/png')
     email.send()
+    
+    # send SMS with the QR code 
+    account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
+    auth_token = '0d3daa8cbe28f025b63b4324071ada0f'
+    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+                              body='Delivery Alert\n\nYou got a package fool!',
+                              from_='+19033548375',
+                              media_url=[qr_api_str],
+                              to=phone
+                          )
 
     return HttpResponse("Just sent an alert to Box-Owner!!")
 
