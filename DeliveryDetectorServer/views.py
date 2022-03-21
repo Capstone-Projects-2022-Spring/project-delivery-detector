@@ -82,7 +82,7 @@ def send_alert(request, name):
     # send the email with the QR code 
     subject = 'Yoo Delivery Alert!!'
     message = 'You got a package fool!' + '\n' + qr_api_str
-    qr_code = bytes(user.qr_code.read())
+    #qr_code = bytes(user.qr_code.read())
 
     email = EmailMessage(
         subject,
