@@ -22,6 +22,7 @@ urlpatterns = [
     path('sign_up/', views.sign_up, name='sign_up'),
     path('log_in/', views.log_in, name='log_in'),
     path('get_user/<str:name>/', views.get_user),
+    path('send_alert/<str:name>/', views.send_alert),
     path('admin/', admin.site.urls),
     path('wifi_QR/',views.wifi_QR, name='wifi_QR'),
 ]

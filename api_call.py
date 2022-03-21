@@ -26,6 +26,12 @@ class DeliveryDetectorBox():
             #lock_box()
             print('LOCK THE BOX')
 
+    # Call the API endpoint for sending a alert 
+    def send_alert(self, name):
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/send_alert/" + name + "/")
+        print(response.text)
+
+
  
 if __name__ == '__main__':
     # Create a new box DeliveryDetectorBox instance with box number 1
