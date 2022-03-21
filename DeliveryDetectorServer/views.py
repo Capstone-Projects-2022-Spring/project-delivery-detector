@@ -35,7 +35,7 @@ def sign_up(request):
                                      user_email=email, user_phone=phone, 
                                      qr_code=qr, box_number=box)
             new_record.save()
-            os.remove(qr)
+            #os.remove(qr)
             return HttpResponse("User has been added to the database!")
     return render(request, 'DeliveryDetectorServer/sign_up.html', {'form': form, 'title': 'Sign Up'})
 
