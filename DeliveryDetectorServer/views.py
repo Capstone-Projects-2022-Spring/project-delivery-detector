@@ -76,11 +76,12 @@ def send_alert(request, name):
     # Get the UserAccount with the supplied name
     user = UserAccount.objects.get(user_name=name)
     phone = '1' + str(user.user_phone)
+    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name
     email = user.user_email
 
     # send the email with the QR code 
     subject = 'Yoo Delivery Alert!!'
-    message = 'You got a package fool!'
+    message = 'You got a package fool!' + '\n' + qr_api_str
     qr_code = bytes(user.qr_code.read())
 
     email = EmailMessage(
@@ -90,13 +91,12 @@ def send_alert(request, name):
         [email],
     )
 
-    email.attach('your_qr.png', qr_code, 'image/png')
+    #email.attach('your_qr.png', qr_code, 'image/png')
     email.send()
     
     # send SMS with the QR code 
     account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
     auth_token = '0d3daa8cbe28f025b63b4324071ada0f'
-    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
