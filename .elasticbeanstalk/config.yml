@@ -2,6 +2,8 @@ branch-defaults:
   default:
     environment: detector-env
     group_suffix: null
+  main:
+    environment: detector-env
 global:
   application_name: detector-server
   branch: null
