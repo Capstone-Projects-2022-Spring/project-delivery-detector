@@ -95,8 +95,8 @@ def send_alert(request, name):
     email.send()
     
     # send SMS with the QR code 
-    account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-    auth_token = '0d3daa8cbe28f025b63b4324071ada0f'
+    account_sid = ''
+    auth_token = ''
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
