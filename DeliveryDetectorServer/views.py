@@ -107,5 +107,14 @@ def send_alert(request, name):
                           )
 
     return HttpResponse("Just sent an alert to Box-Owner!!")
-
+def wifi_QR(request):
+    form = wifi_QR_form()
+    if request.method == 'POST':
+        form = wifi_QR_form(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['network_name']
+            pw = form.cleaned_data['network_password']
+            phone = form.cleaned_data['user_phone']
+            return HttpResponse("Your QR code is on its way!")
+    return render(request, 'DeliveryDetectorServer/wifi_QR.html', {'form': form})
 
