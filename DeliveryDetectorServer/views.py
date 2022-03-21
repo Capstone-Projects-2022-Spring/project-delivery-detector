@@ -1,9 +1,17 @@
 # refer back to the design doc. and add the fields mentioned there 
+import os
 import json
-from django.http import JsonResponse 
-from django.http import HttpResponse
+import urllib
+import pyqrcode
+import twilio
+import twilio.rest
+from django.core.files import File  
+from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict
+from django.core.mail import send_mail, EmailMessage
 from django.shortcuts import render
+from pyqrcode import QRCode
+from twilio.rest import Client
 from .forms import *
 from .models import *
 
@@ -23,9 +31,14 @@ def sign_up(request):
             pw = form.cleaned_data['user_pw']
             email = form.cleaned_data['user_email']
             phone = form.cleaned_data['user_phone']
+            create_qr_code(name)
+            qr = 'qr_' + name + '.png'
             box = BoxInfo.objects.get(pk=form.cleaned_data['box_number'])
-            new_record = UserAccount(user_name=name, user_pw=pw, user_email=email, user_phone=phone, box_number=box)
+            new_record = UserAccount(user_name=name, user_pw=pw, 
+                                     user_email=email, user_phone=phone, 
+                                     qr_code=qr, box_number=box)
             new_record.save()
+            #os.remove(qr)
             return HttpResponse("User has been added to the database!")
     return render(request, 'DeliveryDetectorServer/sign_up.html', {'form': form, 'title': 'Sign Up'})
 
@@ -44,7 +57,55 @@ def log_in(request):
             return render(request, 'DeliveryDetectorServer/sign_up.html', {'form': form, 'title': 'Change Settings'})
     return render(request, 'DeliveryDetectorServer/log_in.html', {'form': form})
 
+# Return a UserAccount record in JSON format 
 def get_user(request, name):
-     user = UserAccount.objects.get(user_name=name)
-     user_dict = model_to_dict(user) 
-     return JsonResponse(json.loads(json.dumps(user_dict)))
+    user = UserAccount.objects.get(user_name=name)
+    dict = {'user_name': user.user_name, 'user_pw': user.user_pw,
+            'user_email': user.user_email, 'user_phone': user.user_phone,
+            'box_number': user.box_number.pk}
+    return JsonResponse(json.loads(json.dumps(dict)))
+
+# Generate QR code with the user name
+def create_qr_code(name):
+    qr_name = pyqrcode.create(name)
+    qr_file_name = 'qr_' + name + '.png'
+    qr_name.png(qr_file_name, scale=10)
+
+# Send a delivery alert to the user 
+def send_alert(request, name):
+    # Get the UserAccount with the supplied name
+    user = UserAccount.objects.get(user_name=name)
+    phone = '1' + str(user.user_phone)
+    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name
+    email = user.user_email
+
+    # send the email with the QR code 
+    subject = 'Yoo Delivery Alert!!'
+    message = 'You got a package fool!' + '\n' + qr_api_str
+    #qr_code = bytes(user.qr_code.read())
+
+    email = EmailMessage(
+        subject,
+        message,
+        'deliverydetector@gmail.com',
+        [email],
+    )
+
+    #email.attach('your_qr.png', qr_code, 'image/png')
+    email.send()
+    
+    # send SMS with the QR code 
+    account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
+    auth_token = '0d3daa8cbe28f025b63b4324071ada0f'
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+                              body='Delivery Alert\n\nYou got a package fool!',
+                              from_='+19033548375',
+                              media_url=[qr_api_str],
+                              to=phone
+                          )
+
+    return HttpResponse("Just sent an alert to Box-Owner!!")
+
+
