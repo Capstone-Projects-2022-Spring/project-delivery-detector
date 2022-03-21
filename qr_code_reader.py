@@ -13,19 +13,24 @@ def read_qr_code():
         qrCodeDetector = cv2.QRCodeDetector()
         decoded_text, points, _ = qrCodeDetector.detectAndDecode(image)
         if points is not None:
-            num_points = len(points)
-            points = points.astype(int)
-            for i in range(num_points):
-                next_point_index = (i+1) % num_points
-                cv2.line(image, tuple(points[i][0]), tuple(points[next_point_index][0]), (255,0,0), 5)
             print('Extracted ' + decoded_text + ' from the image')    
             cv2.imshow("Image", image)
             cv2.waitKey(2000)
             if decoded_text != '':
-                box.check_user_box(decoded_text) 
+                check_qr_text(box, decoded_text)
             cv2.destroyAllWindows()
         else:
             print("QR code not detected")
+
+
+def check_qr_text(box, text):
+    text_list = text.split('-')
+    if len(text_list) > 1:
+        if text_list[1] == '1':
+            box.check_user_box(text_list[0]) 
+            box.send_alert(text_list[0])
+    else:
+        box.check_user_box(text)
 
 
 if __name__ == '__main__':
