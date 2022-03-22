@@ -116,7 +116,7 @@ def wifi_QR(request):
             name = form.cleaned_data['network_name']
             pw = form.cleaned_data['network_password']
             phone = "1" + str(form.cleaned_data['user_phone'])
-            qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + pw
+            qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + 'wifi-' + name + '-' + pw
 
             account_sid = ''
             auth_token = ''
