@@ -45,7 +45,7 @@ def check_qr_text(box, text):
         # box.send_alert(text_list[0])
         elif (text_list[1] == 'wifi'):
             print("WiFi Hookup detected")
-            configWiFi(text_list)
+            configWifi(text_list)
         else:
         # box.check_user_box(text)
 
