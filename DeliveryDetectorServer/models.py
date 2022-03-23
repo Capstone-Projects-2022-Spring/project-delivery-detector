@@ -14,4 +14,4 @@ class BoxInfo(models.Model):
     box_number = models.IntegerField()
     date = models.DateField()
     multi_user = models.BooleanField()
-    # need a one to many field or similar, to keep track of all users using this box 
+    # need a one to many field or similar, to keep track of all users using this box
