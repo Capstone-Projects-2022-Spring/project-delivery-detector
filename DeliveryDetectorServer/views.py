@@ -108,6 +108,7 @@ def send_alert(request, name):
 
 
     return HttpResponse("Just sent an alert to Box-Owner!!\n" + str(message))
+
 def wifi_QR(request):
     form = wifi_QR_form()
     if request.method == 'POST':
@@ -129,7 +130,6 @@ def wifi_QR(request):
                 to=phone
             )
 
-
             return HttpResponse("Your QR code is on its way!")
     return render(request, 'DeliveryDetectorServer/wifi_QR.html', {'form': form})
 
@@ -139,14 +139,13 @@ def seller_QR(request):
         form = seller_QR_form(request.POST)
         if form.is_valid():
             name = form.cleaned_data['user_name']
-            user_email = form.cleaned_data['user_email']
-            phone = '1' + str(form.cleaned_data['user_phone'])
+            user_email = form.cleaned_data['seller_person_email']
+            phone = '1' + str(form.cleaned_data['seller_person_phone'])
             qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-1'
 
             account_sid = ''
             auth_token = ''
             client = Client(account_sid, auth_token)
-            
             
             message = client.messages.create(
                 body='\nHere is your QR Code, turn on your Delivery Detector and show this to the camera',
@@ -156,7 +155,7 @@ def seller_QR(request):
             )
 
             subject = 'Delivery Detector'
-            body = 'Here is the QR code you can attach to you package'
+            body = 'Here is the QR code you can attach to you package\n' + qr_api_str
             email = EmailMessage(
                 subject,
                 body,

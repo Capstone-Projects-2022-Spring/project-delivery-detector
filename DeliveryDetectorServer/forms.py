@@ -20,7 +20,7 @@ class wifi_QR_form(forms.Form):
 
 class seller_QR_form(forms.Form):
     user_name = forms.CharField(label='user', max_length=200)
-    user_email = forms.EmailField(max_length=300)
-    user_phone = forms.IntegerField()
+    seller_person_email = forms.EmailField(max_length=300)
+    seller_person_phone = forms.IntegerField()
 
 
