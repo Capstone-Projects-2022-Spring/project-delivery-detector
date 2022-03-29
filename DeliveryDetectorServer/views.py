@@ -95,8 +95,8 @@ def send_alert(request, name):
     email.send()
     
     # send SMS with the QR code 
-    account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-    auth_token = '6e3422eb47fe09f520a5e271c761b032'
+    account_sid = ''
+    auth_token = ''
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
@@ -119,8 +119,8 @@ def wifi_QR(request):
             phone = "1" + str(form.cleaned_data['user_phone'])
             qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + 'wifi-' + name + '-' + pw
 
-            account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-            auth_token = '6e3422eb47fe09f520a5e271c761b032'
+            account_sid = ''
+            auth_token = ''
             client = Client(account_sid, auth_token)
 
             message = client.messages.create(
@@ -143,8 +143,8 @@ def seller_QR(request):
             phone = '1' + str(form.cleaned_data['seller_person_phone'])
             qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-1'
 
-            account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-            auth_token = '6e3422eb47fe09f520a5e271c761b032'
+            account_sid = ''
+            auth_token = ''
             client = Client(account_sid, auth_token)
             
             message = client.messages.create(
