@@ -1,3 +1,7 @@
+# QR-Code reader for the raspberry pi client device
+# Will use the OpenCV library to extract the QR-Code
+# Will then use the extracted data to make an API call to the server
+#
 # Type 'sudo python3 qr_code_reader.py' to run this file  
 import cv2
 import os, sys, stat
@@ -5,13 +9,7 @@ import time
 import RPi.GPIO as GPIO
 from api_call import DeliveryDetectorBox
 
-
-
-# QR-Code reader for the raspberry pi client device
-# Will use the OpenCV library to extract the QR-Code
-# Will then use the extracted data to make an API call to the server
-
-buzz_pin = 40
+buzz_pin = 40 # GPIO pin for the buzzer
 
 # Extract the QR code 
 def read_qr_code():
@@ -31,7 +29,6 @@ def read_qr_code():
         else:
             print("QR code not detected")
 
-
 # Add the new WiFi to the config file 
 def configWifi(text_list):
     network_name = text_list[1]
@@ -42,7 +39,6 @@ def configWifi(text_list):
             '\ncountry=US\nnetwork={\n\tssid=\"' + network_name +
             '\"\n\tkey_mgmt=WPA-PSK\n\tpsk=\"' + network_password + '\"\n}')
     os.system('sudo shutdown -r now')
-
 
 # Check the string embedded in the QR code 
 def check_qr_text(box, text):
