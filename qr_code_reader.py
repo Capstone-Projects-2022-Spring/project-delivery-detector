@@ -9,25 +9,39 @@ import time
 import RPi.GPIO as GPIO
 from api_call import DeliveryDetectorBox
 
-buzz_pin = 40 # GPIO pin for the buzzer
+buzz_pin = 40       # GPIO pin for the buzzer
 
 # Extract the QR code 
 def read_qr_code():
     vid = cv2.VideoCapture(0)
     box = DeliveryDetectorBox(1)
+    frame_rate = 10     
+    count = 0
     while (True):
         ret, image = vid.read()
         qrCodeDetector = cv2.QRCodeDetector()
-        decoded_text, points, _ = qrCodeDetector.detectAndDecode(image)
-        if points is not None:
-            print('Extracted ' + decoded_text + ' from the image')
-            cv2.imshow("Image", image)
-            cv2.waitKey(2000)
-            if decoded_text != '':
-                check_qr_text(box, decoded_text)
-            cv2.destroyAllWindows()
+        # Only extract the text after a certain number of frames
+        # Should help with the multi-sending issue
+        if (count != 0) and (count % frame_rate) == 0:
+            extract_text(image, box)
+            count = 0
         else:
-            print("QR code not detected")
+            count += 1
+ 
+
+# Extract the text from the QR code 
+def extract_text(image, box):
+    qrCodeDetector = cv2.QRCodeDetector()
+    decoded_text, points, _ = qrCodeDetector.detectAndDecode(image)
+    if points is not None:
+        print('Extracted ' + decoded_text + ' from the image')
+        #cv2.imshow("Image", image)
+        #cv2.waitKey(2000)
+        if decoded_text != '':
+            check_qr_text(box, decoded_text)
+        #cv2.destroyAllWindows()
+    else:
+        print("QR code not detected")
 
 # Add the new WiFi to the config file 
 def configWifi(text_list):
@@ -61,9 +75,9 @@ def check_qr_text(box, text):
 
 # Run the buzzer for demo purposes 
 def demo_buzz():
-    GPIO.out(buzz_pin, GPIO.HIGH)
+    GPIO.output(buzz_pin, GPIO.HIGH)
     time.sleep(1)
-    GPIO.out(buzz_pin, GPIO.LOW)
+    GPIO.output(buzz_pin, GPIO.LOW)
 
 # Check if this script is being run directly 
 if __name__ == '__main__':
