@@ -1,4 +1,3 @@
-# Delivery Detector 
 ![logo](https://github.com/Capstone-Projects-2022-Spring/project-delivery-detector/blob/main/Delivery%20Detector-logos_black.png)
 
 ## Project Overview
