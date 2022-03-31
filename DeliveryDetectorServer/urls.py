@@ -26,4 +26,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('wifi_QR/', views.wifi_QR,name ='wifi_QR'),
     path('seller_QR/', views.seller_QR, name='seller_QR'),
+    path('tamper_alert/<str:name>/<str:alert_msg>/', views.tamper_alert, name='tamper_alert'),
 ]

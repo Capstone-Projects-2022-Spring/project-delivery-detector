@@ -109,6 +109,7 @@ def send_alert(request, name):
 
     return HttpResponse("Just sent an alert to Box-Owner!!\n" + str(message))
 
+# Wifi portal page
 def wifi_QR(request):
     form = wifi_QR_form()
     if request.method == 'POST':
@@ -133,6 +134,7 @@ def wifi_QR(request):
             return HttpResponse("Your QR code is on its way!")
     return render(request, 'DeliveryDetectorServer/wifi_QR.html', {'form': form})
 
+# Seller portal 
 def seller_QR(request):
     form = seller_QR_form()
     if request.method == 'POST':
@@ -166,3 +168,29 @@ def seller_QR(request):
 
             return HttpResponse("Your QR code is on its way!")
     return render(request, 'DeliveryDetectorServer/seller_QR.html', {'form': form})
+
+# Tampering API endpoint for client devices
+def tamper_alert(request, name, alert_msg):
+    # add the SMS when twilio is back up 
+    # also refactor getting the user to a function
+    #   - can do error-checking!
+    # should refactor and have functions for sending alerts!
+    error_dict = {'error': 'There is an error with your device!', 
+                  'theft': 'Your package has been stolen!', 
+                  'move': 'Your box has been moved!',
+                  'open': 'Your box is open and can not close itself!'}
+    user_email = UserAccount.objects.get(user_name=name).user_email
+
+    subject = 'SECURIY ALERT - DELIVERY DETECTOR'
+    for key in error_dict:
+        if key == alert_msg:
+            body = error_dict[key]
+
+    email = EmailMessage(
+        subject,
+        body,
+        'deliverydetector@gmail.com',
+        [user_email],
+    )
+    email.send()
+    return HttpResponse("Tampering alert has been sent!")
