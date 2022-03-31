@@ -1,4 +1,5 @@
 # Delivery Detector 
+![logo](https://github.com/Capstone-Projects-2022-Spring/project-delivery-detector/blob/main/Delivery%20Detector-logos_black.png)
 
 ## Project Overview
 The delivery detector is a complete assembly for users who want more protection regarding their deliveries. Our system is for single and multiple users to keep track of their deliveries and keep them secured. Users can add their information, like phone number and email, to receive various alerts and updates from the Delivery Detector. The Delivery Detector will feature a secure lock-box that can interface with an android device or a raspberry pi to run the client detection software. The client software will interact with a Delivery Detector server, through RESTful APIs, to complete all the event handling. 
