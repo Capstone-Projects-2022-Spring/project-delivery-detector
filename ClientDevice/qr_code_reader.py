@@ -19,7 +19,6 @@ def read_qr_code():
     count = 0
     while (True):
         ret, image = vid.read()
-        qrCodeDetector = cv2.QRCodeDetector()
         # Only extract the text after a certain number of frames
         # Should help with the multi-sending issue
         if (count != 0) and (count % frame_rate) == 0:
