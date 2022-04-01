@@ -95,8 +95,8 @@ def send_alert(request, name):
     email.send()
     
     # send SMS with the QR code 
-    account_sid = ''
-    auth_token = ''
+    account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
+    auth_token = 'ee09d9d4f36d1f4c36ba0397d4850310'
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
@@ -145,8 +145,8 @@ def seller_QR(request):
             phone = '1' + str(form.cleaned_data['seller_person_phone'])
             qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-1'
 
-            account_sid = ''
-            auth_token = ''
+            account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
+            auth_token = 'ee09d9d4f36d1f4c36ba0397d4850310'
             client = Client(account_sid, auth_token)
             
             message = client.messages.create(
@@ -180,15 +180,28 @@ def tamper_alert(request, name, alert_msg):
                   'move': 'Your box has been moved!',
                   'open': 'Your box is open and can not close itself!'}
     user_email = UserAccount.objects.get(user_name=name).user_email
+    user_phone = UserAccount.objects.get(user_name=name).user_phone
+
 
     subject = 'SECURIY ALERT - DELIVERY DETECTOR'
     for key in error_dict:
         if key == alert_msg:
-            body = error_dict[key]
+            text_body = error_dict[key]
+
+    account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
+    auth_token = 'ee09d9d4f36d1f4c36ba0397d4850310'
+    client = Client(account_sid, auth_token)
+            
+    message = client.messages.create(
+        body=text_body,
+        from_='+19033548375',
+        media_url=[qr_api_str],
+        to=user_phone
+    )
 
     email = EmailMessage(
         subject,
-        body,
+        text_body,
         'deliverydetector@gmail.com',
         [user_email],
     )
