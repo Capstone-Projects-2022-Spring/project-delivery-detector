@@ -195,7 +195,6 @@ def tamper_alert(request, name, alert_msg):
     message = client.messages.create(
         body=text_body,
         from_='+19033548375',
-        media_url=[qr_api_str],
         to=user_phone
     )
 
