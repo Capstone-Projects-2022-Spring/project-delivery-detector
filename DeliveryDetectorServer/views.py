@@ -108,7 +108,7 @@ def send_alert(request, name):
     
     # send SMS with the QR code 
     account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-    auth_token = 'ee09d9d4f36d1f4c36ba0397d4850310'
+    auth_token = ''
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
@@ -132,7 +132,7 @@ def wifi_QR(request):
             phone = "1" + str(form.cleaned_data['user_phone'])
             qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + 'wifi-' + name + '-' + pw
 
-            account_sid = ''
+            account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
             auth_token = ''
             client = Client(account_sid, auth_token)
 
@@ -158,7 +158,7 @@ def seller_QR(request):
             qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-1'
 
             account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-            auth_token = 'ee09d9d4f36d1f4c36ba0397d4850310'
+            auth_token = ''
             client = Client(account_sid, auth_token)
             
             message = client.messages.create(
@@ -201,7 +201,7 @@ def tamper_alert(request, name, alert_msg):
             text_body = error_dict[key]
 
     account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-    auth_token = 'ee09d9d4f36d1f4c36ba0397d4850310'
+    auth_token = ''
     client = Client(account_sid, auth_token)
             
     message = client.messages.create(
