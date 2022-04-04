@@ -65,6 +65,18 @@ def get_user(request, name):
             'box_number': user.box_number.pk}
     return JsonResponse(json.loads(json.dumps(dict)))
 
+# Return a JSON list of all users assigned to a given box
+def get_all_users(request, box_num):
+    users = UserAccount.objects.all()
+    all_users = {}
+    count = 0
+    for user in users:
+        if user.box_number.pk == box_num:
+            key = 'user' + str(count)
+            count += 1
+            all_users.update({key: user.user_name})
+    return JsonResponse(json.loads(json.dumps(all_users)))
+
 # Generate QR code with the user name
 def create_qr_code(name):
     qr_name = pyqrcode.create(name)

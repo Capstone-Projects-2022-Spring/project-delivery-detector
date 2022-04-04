@@ -20,6 +20,7 @@ urlpatterns = [
     path('log_in/', views.log_in, name='log_in'),
     path('get_user/<str:name>/', views.get_user),
     path('send_alert/<str:name>/', views.send_alert),
+    path('get_all_users/<int:box_num>/', views.get_all_users),
     path('admin/', admin.site.urls),
     path('wifi_QR/', views.wifi_QR,name ='wifi_QR'),
     path('seller_QR/', views.seller_QR, name='seller_QR'),
