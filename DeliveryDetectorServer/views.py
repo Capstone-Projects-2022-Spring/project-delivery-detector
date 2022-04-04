@@ -1,6 +1,7 @@
 # refer back to the design doc. and add the fields mentioned there 
 import os
 import json
+import random
 import urllib
 import pyqrcode
 import twilio
@@ -14,7 +15,8 @@ from pyqrcode import QRCode
 from twilio.rest import Client
 from .forms import *
 from .models import *
-
+account_sid = ''
+auth_token = ''
 # Home page view
 def index(request):
     return render(request, 'DeliveryDetectorServer/index.html')
@@ -72,11 +74,11 @@ def create_qr_code(name):
     qr_name.png(qr_file_name, scale=10)
 
 # Send a delivery alert to the user 
-def send_alert(request, name):
+def send_alert(request, name, orderNumber):
     # Get the UserAccount with the supplied name
     user = UserAccount.objects.get(user_name=name)
     phone = '1' + str(user.user_phone)
-    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name
+    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-' + orderNumber
     email = user.user_email
 
     # send the email with the QR code 
@@ -94,9 +96,8 @@ def send_alert(request, name):
     #email.attach('your_qr.png', qr_code, 'image/png')
     email.send()
     
-    # send SMS with the QR code 
-    account_sid = ''
-    auth_token = ''
+    # send SMS with the QR code
+
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
@@ -118,8 +119,6 @@ def wifi_QR(request):
             phone = "1" + str(form.cleaned_data['user_phone'])
             qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + 'wifi-' + name + '-' + pw
 
-            account_sid = ''
-            auth_token = ''
             client = Client(account_sid, auth_token)
 
             message = client.messages.create(
@@ -132,27 +131,37 @@ def wifi_QR(request):
 
             return HttpResponse("Your QR code is on its way!")
     return render(request, 'DeliveryDetectorServer/wifi_QR.html', {'form': form})
+def generate_order_number():
+    order_number = ""
+    numbers = [0,1,2,3,4,5,6,7,8,9]
+    for i in range(10):
+        order_number += str(random.choice(numbers))
+    return order_number
+
 
 def seller_QR(request):
     form = seller_QR_form()
     if request.method == 'POST':
         form = seller_QR_form(request.POST)
         if form.is_valid():
-            name = form.cleaned_data['user_name']
-            user_email = form.cleaned_data['user_email']
-            phone = '1' + str(form.cleaned_data['user_phone'])
-            qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-1'
+            user_name = form.cleaned_data['user_name']
+            seller_name = form.cleaned_data['seller_name']
+            seller_email = form.cleaned_data['seller_email']
+            seller_phone = '1' + str(form.cleaned_data['seller_phone'])
+            order_number = generate_order_number()
 
-            account_sid = ''
-            auth_token = ''
+            qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + user_name + '-' + order_number + '-1'
             client = Client(account_sid, auth_token)
-            
-            
+
+            new_record = OrderInfo(user_name=user_name, order_number=order_number,
+                                    seller_email=seller_email, seller_phone=seller_phone,
+                                   seller_name=seller_name)
+            new_record.save()
             message = client.messages.create(
                 body='\nHere is your QR Code, turn on your Delivery Detector and show this to the camera',
                 from_='+19033548375',
                 media_url=[qr_api_str],
-                to=phone
+                to=seller_phone
             )
 
             subject = 'Delivery Detector'
@@ -161,7 +170,7 @@ def seller_QR(request):
                 subject,
                 body,
                 'deliverydetector@gmail.com',
-                [user_email],
+                [seller_email],
             )
             email.send()
 

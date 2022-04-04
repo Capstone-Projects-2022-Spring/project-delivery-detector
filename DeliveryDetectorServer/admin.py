@@ -3,4 +3,5 @@ from .models import *
 
 admin.site.register(UserAccount)
 admin.site.register(BoxInfo)
+admin.site.register(OrderInfo)
 

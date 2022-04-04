@@ -40,14 +40,14 @@ def configWifi(text_list):
 def check_qr_text(box, text):
     text_list = text.split('-')
     if len(text_list) > 1:
-        if text_list[1] == '1':
-        # box.check_user_box(text_list[0])
-        # box.send_alert(text_list[0])
-        elif (text_list[1] == 'wifi'):
+        if text_list[2] == '1':
+            box.check_user_box(text_list[0])
+            box.send_alert(text_list[0],text_list[1])
+        elif(text_list[1] == 'wifi'):
             print("WiFi Hookup detected")
-            configWiFi(text_list)
+            configWifi(text_list)
         else:
-        # box.check_user_box(text)
+            box.check_user_box(text)
 
 
 if __name__ == '__main__':
