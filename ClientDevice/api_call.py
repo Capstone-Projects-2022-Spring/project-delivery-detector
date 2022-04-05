@@ -31,8 +31,29 @@ class DeliveryDetectorBox():
         response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/send_alert/" + name + "/")
         print(response.text)
 
+    # Call the tamper API
+    def send_tamper_alert(self, user_name, msg):
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/tamper_alert/" + user_name + "/" + msg + '/')
 
- 
+    # Set up this box with all the users assigned to it
+    # Returns a list of all users assigned to this box
+    def get_all_assigned_users(self):
+        # deploy the new endpoint and test with it 
+        user_list = []
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/get_all_users/" + self.box_number + "/")
+        res_obj = response.json()
+        for key in res_obj:
+            user_list.append(res_obj[key])
+        return user_list
+
+    # Returns a JSON object of all orders
+    def get_all_assigned_users(self):
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/get_all_order_nums/" + self.box_number + "/")
+        res_obj = response.json()
+        for key in res_obj:
+            user_list.append(res_obj[key])
+        return user_list
+
 if __name__ == '__main__':
     # Create a new box DeliveryDetectorBox instance with box number 1
     box = DeliveryDetectorBox(1)

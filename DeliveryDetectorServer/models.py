@@ -6,7 +6,6 @@ class UserAccount(models.Model):
     user_pw = models.CharField(max_length=200)
     user_email = models.EmailField(max_length=300)
     user_phone = models.BigIntegerField()
-    qr_code = models.ImageField(upload_to='user_qr_codes')
     box_number = models.ForeignKey('BoxInfo', on_delete=models.CASCADE)
 
 # Database table for boxes
@@ -15,3 +14,10 @@ class BoxInfo(models.Model):
     date = models.DateField()
     multi_user = models.BooleanField()
     # need a one to many field or similar, to keep track of all users using this box
+
+class OrderInfo(models.Model):
+    order_number = models.IntegerField()
+    user_name = models.CharField(max_length=200)
+    seller_name = models.CharField(max_length=200)
+    seller_email = models.EmailField(max_length=300)
+    seller_phone = models.BigIntegerField()

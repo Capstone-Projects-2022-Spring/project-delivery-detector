@@ -5,6 +5,7 @@ import urllib
 import pyqrcode
 import twilio
 import twilio.rest
+import random
 from django.core.files import File  
 from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict
@@ -14,6 +15,10 @@ from pyqrcode import QRCode
 from twilio.rest import Client
 from .forms import *
 from .models import *
+
+# Twilio cred's
+account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
+auth_token = ''
 
 # Home page view
 def index(request):
@@ -77,6 +82,21 @@ def get_all_users(request, box_num):
             all_users.update({key: user.user_name})
     return JsonResponse(json.loads(json.dumps(all_users)))
 
+# Return a JSON list of all users assigned to a given box
+# The client device will call this API at boot to get all the order numbers
+def get_all_order_nums(request):
+    orders = OrderInfo.objects.all()
+    all_orders = {}
+    index = 0
+    for order in orders:
+        # below is what the returned JSON looks like
+        # the client device will reload the order numbers on boot 
+        # {'0': [1111, max] }
+        # {'1': [222, lewis] }
+        all_orders.update({index: [order.order_number, order.user_name]})
+        index += 1
+    return JsonResponse(json.loads(json.dumps(all_orders)))
+
 # Generate QR code with the user name
 def create_qr_code(name):
     qr_name = pyqrcode.create(name)
@@ -107,8 +127,6 @@ def send_alert(request, name):
     email.send()
     
     # send SMS with the QR code 
-    account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-    auth_token = ''
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
@@ -132,8 +150,6 @@ def wifi_QR(request):
             phone = "1" + str(form.cleaned_data['user_phone'])
             qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + 'wifi-' + name + '-' + pw
 
-            account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-            auth_token = ''
             client = Client(account_sid, auth_token)
 
             message = client.messages.create(
@@ -146,26 +162,36 @@ def wifi_QR(request):
             return HttpResponse("Your QR code is on its way!")
     return render(request, 'DeliveryDetectorServer/wifi_QR.html', {'form': form})
 
-# Seller portal 
+def generate_order_number():
+    order_number = ""
+    numbers = [0,1,2,3,4,5,6,7,8,9]
+    for i in range(10):
+        order_number += str(random.choice(numbers))
+    return order_number
+
 def seller_QR(request):
     form = seller_QR_form()
     if request.method == 'POST':
         form = seller_QR_form(request.POST)
         if form.is_valid():
-            name = form.cleaned_data['user_name']
-            user_email = form.cleaned_data['seller_person_email']
-            phone = '1' + str(form.cleaned_data['seller_person_phone'])
-            qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-1'
+            user_name = form.cleaned_data['user_name']
+            seller_name = form.cleaned_data['seller_name']
+            seller_email = form.cleaned_data['seller_email']
+            seller_phone = '1' + str(form.cleaned_data['seller_phone'])
+            order_num = generate_order_number()
 
-            account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-            auth_token = ''
+            qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + user_name + '-' + order_num + '-1'
             client = Client(account_sid, auth_token)
-            
+
+            new_record = OrderInfo(user_name=user_name, order_number=order_num,
+                                    seller_email=seller_email, seller_phone=seller_phone,
+                                   seller_name=seller_name)
+            new_record.save()
             message = client.messages.create(
                 body='\nHere is your QR Code, turn on your Delivery Detector and show this to the camera',
                 from_='+19033548375',
                 media_url=[qr_api_str],
-                to=phone
+                to=seller_phone
             )
 
             subject = 'Delivery Detector'
@@ -174,7 +200,7 @@ def seller_QR(request):
                 subject,
                 body,
                 'deliverydetector@gmail.com',
-                [user_email],
+                [seller_email],
             )
             email.send()
 
@@ -183,7 +209,6 @@ def seller_QR(request):
 
 # Tampering API endpoint for client devices
 def tamper_alert(request, name, alert_msg):
-    # add the SMS when twilio is back up 
     # also refactor getting the user to a function
     #   - can do error-checking!
     # should refactor and have functions for sending alerts!
@@ -200,8 +225,6 @@ def tamper_alert(request, name, alert_msg):
         if key == alert_msg:
             text_body = error_dict[key]
 
-    account_sid = 'AC92491224a3d8526f34d92c575f00cfc2'
-    auth_token = ''
     client = Client(account_sid, auth_token)
             
     message = client.messages.create(
