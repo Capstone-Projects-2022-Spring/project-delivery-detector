@@ -129,15 +129,15 @@ def set_up_multi_box(box, num_slots):
     for order in all_orders.values():
         order_num = order[0]
         user_name = order[1]
-        if user_name in all_users.keys():
+        if user_name in all_users:
             if user_name in user_order_dict.keys():
-                user_order_dict[user_name] += order_num
+                user_order_dict[user_name].append(order_num)
             else:
-                user_order_dict.update({user_name: order_num})
+                user_order_dict.update({user_name: [order_num]})
 
     # assign the users to slots and add valid order numbers
     for user in all_users:
-        orders = user_order_dict[user] if user_order_dict[user] is not None else -1 
+        orders = user_order_dict[user] if user in user_order_dict.keys() else -1 
         user_slots.append({'user_name': user, 'order_numbers': orders, 'slot': slot_index})
         slot_index += 1
 

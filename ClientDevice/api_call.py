@@ -40,19 +40,20 @@ class DeliveryDetectorBox():
     def get_all_assigned_users(self):
         # deploy the new endpoint and test with it 
         user_list = []
-        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/get_all_users/" + self.box_number + "/")
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/get_all_users/" + str(self.box_number) + "/")
         res_obj = response.json()
         for key in res_obj:
             user_list.append(res_obj[key])
         return user_list
 
     # Returns a JSON object of all orders
-    def get_all_assigned_users(self):
-        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/get_all_order_nums/" + self.box_number + "/")
+    def get_all_assigned_orders(self):
+        user_dict = {}
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/get_all_order_nums/")
         res_obj = response.json()
         for key in res_obj:
-            user_list.append(res_obj[key])
-        return user_list
+            user_dict.update({key: res_obj[key]})
+        return user_dict
 
 if __name__ == '__main__':
     # Create a new box DeliveryDetectorBox instance with box number 1
