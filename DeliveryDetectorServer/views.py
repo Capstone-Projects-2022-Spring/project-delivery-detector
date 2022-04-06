@@ -157,13 +157,6 @@ def seller_QR(request):
                                     seller_email=seller_email, seller_phone=seller_phone,
                                    seller_name=seller_name)
             new_record.save()
-            message = client.messages.create(
-                body='\nHere is your QR Code, turn on your Delivery Detector and show this to the camera',
-                from_='+19033548375',
-                media_url=[qr_api_str],
-                to=seller_phone
-            )
-
             subject = 'Delivery Detector'
             body = 'Here is the QR code you can attach to you package'
             email = EmailMessage(
@@ -173,6 +166,11 @@ def seller_QR(request):
                 [seller_email],
             )
             email.send()
-
+            message = client.messages.create(
+                body='\nHere is your QR Code, turn on your Delivery Detector and show this to the camera',
+                from_='+19033548375',
+                media_url=[qr_api_str],
+                to=seller_phone
+            )
             return HttpResponse("Your QR code is on its way!")
     return render(request, 'DeliveryDetectorServer/seller_QR.html', {'form': form})
