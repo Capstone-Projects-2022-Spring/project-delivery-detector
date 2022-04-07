@@ -27,12 +27,51 @@ class DeliveryDetectorBox():
             print('LOCK THE BOX')
 
     # Call the API endpoint for sending a alert 
-    def send_alert(self, name):
-        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/send_alert/" + name + "/")
+    def send_alert(self, name, num, slot=-1):
+        if slot >= 0:
+            response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/send_alert_multi/" + name + "/" + str(num) + "/" + str(slot )+ "/")
+        else:
+            response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/send_alert/" + name + "/" + str(num) + "/")
         print(response.text)
 
+    # Call the tamper API
+    def send_tamper_alert(self, user_name, msg):
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/tamper_alert/" + user_name + "/" + msg + '/')
 
- 
+    # Set up this box with all the users assigned to it
+    # Returns a list of all users assigned to this box
+    def get_all_assigned_users(self):
+        # deploy the new endpoint and test with it 
+        user_list = []
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/get_all_users/" + str(self.box_number) + "/")
+        res_obj = response.json()
+        for key in res_obj:
+            user_list.append(res_obj[key])
+        return user_list
+
+    # Returns a JSON object of all orders
+    def get_all_assigned_orders(self):
+        user_dict = {}
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/get_all_order_nums/")
+        res_obj = response.json()
+        for key in res_obj:
+            user_dict.update({key: res_obj[key]})
+        return user_dict
+
+    # Checks that an order number is valid and in the database
+    def bad_order_num(self, name, order_num):
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/check_order_num/" + name + "/" + str(order_num) + "/")
+        res_obj = response.json()
+        if res_obj['check'] == 1:
+            return 0
+        else:
+            return 1
+
+    # Clear an order number
+    def clear_order_num(self, order_num):
+        response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/clear_order_num/" + str(order_num) + "/")
+
+
 if __name__ == '__main__':
     # Create a new box DeliveryDetectorBox instance with box number 1
     box = DeliveryDetectorBox(1)
