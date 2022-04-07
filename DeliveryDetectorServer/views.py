@@ -1,3 +1,7 @@
+# ToDo
+#
+#  - REFACTOR!!
+#
 # refer back to the design doc. and add the fields mentioned there 
 import os
 import json
@@ -41,7 +45,7 @@ def sign_up(request):
             box = BoxInfo.objects.get(pk=form.cleaned_data['box_number'])
             new_record = UserAccount(user_name=name, user_pw=pw, 
                                      user_email=email, user_phone=phone, 
-                                     qr_code=qr, box_number=box)
+                                     box_number=box)
             new_record.save()
             #os.remove(qr)
             return HttpResponse("User has been added to the database!")
@@ -61,6 +65,12 @@ def log_in(request):
             form.user_pw = pw
             return render(request, 'DeliveryDetectorServer/sign_up.html', {'form': form, 'title': 'Change Settings'})
     return render(request, 'DeliveryDetectorServer/log_in.html', {'form': form})
+
+# Clear an order number from the database
+def clear_order_num(request, order_num):
+    order = OrderInfo.objects.get(order_number=order_num)
+    order.delete()
+    return HttpResponse("Just removed order number: " + str(order_num))
 
 # Return a UserAccount record in JSON format 
 def get_user(request, name):
@@ -97,6 +107,16 @@ def get_all_order_nums(request):
         index += 1
     return JsonResponse(json.loads(json.dumps(all_orders)))
 
+# Check if the user is registered to the order number
+def check_order_num(request, name, order_num):
+    try:
+        order = OrderInfo.objects.get(order_number=order_num)
+        result = 1 if order.user_name else 0
+    except:
+        result = 0
+    ret_dict = {'check': result}
+    return JsonResponse(json.loads(json.dumps(ret_dict)))
+
 # Generate QR code with the user name
 def create_qr_code(name):
     qr_name = pyqrcode.create(name)
@@ -104,20 +124,19 @@ def create_qr_code(name):
     qr_name.png(qr_file_name, scale=10)
 
 # Send a delivery alert to the user 
-def send_alert(request, name):
+def send_alert(request, name, order_num):
     # Get the UserAccount with the supplied name
     user = UserAccount.objects.get(user_name=name)
     phone = '1' + str(user.user_phone)
-    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name
+    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-' + str(order_num) + '-' + '0'
     email = user.user_email
 
     # send the email with the QR code 
-    subject = 'Yoo Delivery Alert!!'
-    message = 'You got a package fool!' + '\n' + qr_api_str
+    message = '\nDelivery Alert\n\nYou got a package fool!\n\nPresent the QR code to the Delivery Detector Scanner\n' + qr_api_str
     #qr_code = bytes(user.qr_code.read())
 
     email = EmailMessage(
-        subject,
+        'Delivery Detector Alter',
         message,
         'deliverydetector@gmail.com',
         [email],
@@ -130,12 +149,43 @@ def send_alert(request, name):
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
-                              body='Delivery Alert\n\nYou got a package fool!',
+                              body='\nDelivery Alert\n\nYou got a package fool!\n\nPresent the QR code to the Delivery Detector Scanner',
                               from_='+19033548375',
                               media_url=[qr_api_str],
                               to=phone
                           )
 
+    return HttpResponse("Just sent an alert to Box-Owner!!\n" + str(message))
+
+def send_alert_multi(request, name, order_num, slot_num):
+    # Get the UserAccount with the supplied name
+    user = UserAccount.objects.get(user_name=name)
+    phone = '1' + str(user.user_phone)
+    qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-' + str(order_num) + '-' + '0'
+    email = user.user_email
+
+    # send the email with the QR code 
+    message = '\nDelivery Alert\n\nYou got a package fool!\n\nPresent the QR code to the Delivery Detector Scanner\n' + qr_api_str + '\n\nYour slot number is ' + str(slot_num)
+
+    email = EmailMessage(
+        'Delivery Detector - Package Dropoff',
+        message,
+        'deliverydetector@gmail.com',
+        [email],
+    )
+
+    #email.attach('your_qr.png', qr_code, 'image/png')
+    email.send()
+    
+    # send SMS with the QR code 
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+                              body='\nDelivery Alert\n\nYou got a package fool!\n\nPresent the QR code to the Delivery Detector Scanner\n\nYour slot number is ' + str(slot_num),
+                              from_='+19033548375',
+                              media_url=[qr_api_str],
+                              to=phone
+                          )
 
     return HttpResponse("Just sent an alert to Box-Owner!!\n" + str(message))
 
