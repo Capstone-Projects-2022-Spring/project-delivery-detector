@@ -2,17 +2,13 @@
 # Will use the OpenCV library to extract the QR-Code
 # Will then use the extracted data to make an API call to the server
 #
-# Type 'sudo python3 qr_code_reader.py' to run this file  
-# 
-# ToDo
-#   - need a way to load all order numbers on startup
-#   - this is needeed if a package is already in the box, but the box reboots
-#   - currently, the order numbers will be lost on each reboot
-#   - REFACTOR
-import cv2
+# This program will be run on boot by the client device 
+#
+# Type 'sudo python3 qr_code_reader.py' to run this file directly 
+#import cv2
 import os, sys, stat
 import time
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 from api_call import DeliveryDetectorBox
 
 buzz_pin = 40       # GPIO pin for the buzzer
@@ -124,9 +120,9 @@ def package_delivery(box, user_name, order_number):
             # make sure this order is not currently waiting to be picked up by the box owner
             # if the order number is already in there, the package has already been dropped off
             for order in user_orders:
-                if order_number == order:
+                if int(order_number) == int(order):
                     # the delivery person is trying to use the same QR code twice
-                    print("\nERROR - DELIVRY PERSON RE-USING THE QR CODE!!\n")
+                    box.send_tamper_alert(user_name, 'qr')
                     return
             # add the order to the user's list of order numbers
             # send the alert
@@ -134,7 +130,6 @@ def package_delivery(box, user_name, order_number):
             user['order_numbers'].append(order_number)
             led_green_light()
             led_red_light()
-            return
 
 # Pick up a package to a user assigned to a multi user box
 def package_pickup(box, user_name, order_number):
@@ -244,6 +239,6 @@ def gpio_init():
 if __name__ == '__main__':
     gpio_init()
     demo_buzz()
-    #test_box()
     #read_qr_code(box_num2)
     read_qr_code(box_num=1, num_slots=9) 
+    #test_box()
