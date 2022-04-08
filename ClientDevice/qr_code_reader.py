@@ -9,19 +9,21 @@
 #   - this is needeed if a package is already in the box, but the box reboots
 #   - currently, the order numbers will be lost on each reboot
 #   - REFACTOR
-#import cv2
+import cv2
 import os, sys, stat
 import time
 import RPi.GPIO as GPIO
 from api_call import DeliveryDetectorBox
 
 buzz_pin = 40       # GPIO pin for the buzzer
+led_green_pin = 36  # GPIO pin for green LED
+led_red_pin = 38    # GPIO pin for red LED
 user_slots = []     # list for user - ordernumber - slot dict 
 
 # Extract the QR code 
-def read_qr_code(num_slots=1):
+def read_qr_code(box_num, num_slots=1):
     vid = cv2.VideoCapture(0)
-    box = DeliveryDetectorBox(1)
+    box = DeliveryDetectorBox(box_num)
     frame_rate = 10     
     count = 0
     set_up_multi_box(box, num_slots) if num_slots > 1 else set_up_single_box(box)
@@ -29,7 +31,7 @@ def read_qr_code(num_slots=1):
         ret, image = vid.read()
         # Only extract the text after a certain number of frames
         if (count != 0) and (count % frame_rate) == 0:
-            extract_text(image, box, user_slots)
+            extract_text(image, box)
             count = 0
         else:
             count += 1
@@ -50,7 +52,7 @@ def set_up_single_box(box):
     user_slots.append({'user_name': user, 'order_numbers': orders, 'slot': -1})
 
 # Extract the text from the QR code 
-def extract_text(image, box, user_slots):
+def extract_text(image, box):
     qrCodeDetector = cv2.QRCodeDetector()
     decoded_text, points, _ = qrCodeDetector.detectAndDecode(image)
     if points is not None:
@@ -58,7 +60,7 @@ def extract_text(image, box, user_slots):
         #cv2.imshow("Image", image)
         #cv2.waitKey(2000)
         if decoded_text != '':
-            check_qr_text(box, decoded_text, user_slots)
+            check_qr_text(box, decoded_text)
         #cv2.destroyAllWindows()
     else:
         print("QR code not detected")
@@ -80,7 +82,7 @@ def configWifi(text_list):
 #   packagetype:
 #       1 = delivery
 #       0 = pickup
-def check_qr_text(box, text, user_slots):
+def check_qr_text(box, text):
     text_list = text.split('-')
     user_name = text_list[0]
     order_num = text_list[1]
@@ -106,14 +108,16 @@ def check_qr_multi_user(box, text_list):
     user_name = text_list[0]
     order_num = text_list[1]
     package_type = text_list[2]
-    if (package_type == 1):
-        package_deposite(box, user_name, order_number)
-    elif (package_type == 0):
-        package_pickup(box, user_name, order_number)
+    if (package_type == '1'):
+        package_delivery(box, user_name, order_num)
+    elif (package_type == '0'):
+        package_pickup(box, user_name, order_num)
 
 # Deliver a package to a user assigned to a multi user box
 def package_delivery(box, user_name, order_number):
-    if bad_order_num(user_name, order_number): return
+    if box.bad_order_num(user_name, order_number): 
+        print('ERROR: ORDER NUMBER ' + str(order_number) + ' IS NOT VALID')
+        return
     for user in user_slots:
         if user_name == user['user_name']:
             user_orders = user['order_numbers']
@@ -128,20 +132,20 @@ def package_delivery(box, user_name, order_number):
             # send the alert
             box.send_alert(user_name, order_number, user['slot'])
             user['order_numbers'].append(order_number)
-            #demo_buzz()
+            led_green_light()
+            led_red_light()
             return
 
 # Pick up a package to a user assigned to a multi user box
 def package_pickup(box, user_name, order_number):
     for user in user_slots:
         if user_name == user['user_name']:
-            user_orders = user['order_numbers']
-            for order in user_orders:
-                if order_number == order:
-                    # unlock the box
-                    print("UNLOCK THE BOX")
-                    #demo_buzz()
-                    return
+            if not box.bad_order_num(user_name, order_number):
+                # unlock the box
+                print("UNLOCK THE BOX")
+                led_green_light()
+                led_red_light()
+                return
 
 # Configure the box and the device to work for multiple users
 def set_up_multi_box(box, num_slots):
@@ -174,32 +178,46 @@ def set_up_multi_box(box, num_slots):
         user_slots.append({'user_name': user, 'order_numbers': orders, 'slot': slot_index})
         slot_index += 1
 
+# Turn on the green LED on and the red LED off
+def led_green_light():
+    GPIO.output(led_green_pin, GPIO.HIGH)
+    GPIO.output(led_red_pin, GPIO.LOW)
+    time.sleep(20)
+
+# Turn on the red LED
+def led_red_light():
+    GPIO.output(led_red_pin, GPIO.HIGH)
+    GPIO.output(led_green_pin, GPIO.LOW)
+
 # Run the buzzer for demo purposes 
 def demo_buzz():
     GPIO.output(buzz_pin, GPIO.HIGH)
-    time.sleep(1)
+    GPIO.output(led_red_pin, GPIO.HIGH)
+    GPIO.output(led_green_pin, GPIO.HIGH)
+    time.sleep(5)
+    GPIO.output(led_green_pin, GPIO.LOW)
     GPIO.output(buzz_pin, GPIO.LOW)
 
+# go through work-flow of the following, with the secure QR:
+#   (1) Delivery Person dropping off for multiple users
+#       Box owner comes and pick its up
+#
+#   (2) Delivery Person dropping off for single
+#       Box owner comes and pick its up
 def test_box():
-    # go through work-flow of the following, with the secure QR:
-    #   (1) Delivery Person dropping off for multiple users
-    #       Box owner comes and pick its up
-    #
-    #   (2) Delivery Person dropping off for single
-    #       Box owner comes and pick its up
-
     # multiple user
     box = DeliveryDetectorBox(1)
     set_up_multi_box(box, 9)
     print(user_slots)
+    """
     name = 'test3'
     order_num = 1111111111
     package_delivery(box, name, order_num)
     time.sleep(5)
     print(user_slots)
     package_pickup(box, name, order_num)
-    print('packaged pick up ')
-
+    print('package picked up ')
+    """
     """
         # single user
         box = DeliveryDetectorBox(2)
@@ -214,15 +232,18 @@ def test_box():
         print('packaged pick up ')
     """
 
+def gpio_init():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(led_green_pin, GPIO.OUT)
+    GPIO.setup(led_red_pin, GPIO.OUT)
+    GPIO.setup(buzz_pin, GPIO.OUT)
+
 
 # Check if this script is being run directly 
 if __name__ == '__main__':
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(buzz_pin, GPIO.OUT)
+    gpio_init()
     demo_buzz()
-    test_box()
-    #read_qr_code()
-    #read_qr_code(4)
-
-
-
+    #test_box()
+    #read_qr_code(box_num2)
+    read_qr_code(box_num=1, num_slots=9) 
