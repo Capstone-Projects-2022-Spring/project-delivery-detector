@@ -5,10 +5,10 @@
 # This program will be run on boot by the client device 
 #
 # Type 'sudo python3 qr_code_reader.py' to run this file directly 
-#import cv2
+import cv2
 import os, sys, stat
 import time
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 from api_call import DeliveryDetectorBox
 
 buzz_pin = 40       # GPIO pin for the buzzer
