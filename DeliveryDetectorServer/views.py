@@ -213,6 +213,9 @@ def wifi_QR(request):
     return render(request, 'DeliveryDetectorServer/wifi_QR.html', {'form': form})
 
 def generate_order_number():
+    # error here, can have a leading 0
+    # since we're returning a string, the number could be 08191001
+    # but will be 8191001 when stored in memory, so it will never match up
     order_number = ""
     numbers = [0,1,2,3,4,5,6,7,8,9]
     for i in range(10):
@@ -262,10 +265,11 @@ def tamper_alert(request, name, alert_msg):
     # also refactor getting the user to a function
     #   - can do error-checking!
     # should refactor and have functions for sending alerts!
-    error_dict = {'error': 'There is an error with your device!', 
-                  'theft': 'Your package has been stolen!', 
-                  'move': 'Your box has been moved!',
-                  'open': 'Your box is open and can not close itself!'}
+    error_dict = {'error': '\nThere is an error with your device!', 
+                  'theft': '\nYour package has been stolen!', 
+                  'move': '\nYour box has been moved!',
+                  'qr': '\nA delivery person is re-using a QR-code to get into the box!',
+                  'open': '\nYour box is open and can not close itself!'}
     user_email = UserAccount.objects.get(user_name=name).user_email
     user_phone = UserAccount.objects.get(user_name=name).user_phone
 
