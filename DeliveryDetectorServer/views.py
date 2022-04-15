@@ -188,7 +188,7 @@ def send_alert_multi(request, name, order_num, slot_num):
     phone = '1' + str(user.user_phone)
     qr_api_str = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + name + '-' + str(order_num) + '-' + '0'
     email = user.user_email
-    body='\nDelivery Alert\n\nYou got a package fool!\n\nPresent the QR code to the Delivery Detector Scanner\n\nYour slot number is ' + str(slot_num),
+    body='\nDelivery Alert\n\nYou got a package fool!\n\nPresent the QR code to the Delivery Detector Scanner\n\nYour slot number is ' + str(slot_num)
     subject = 'Delivery Detector - Package Dropoff'
     send_alert_util(phone, email, body, subject, qr_api_str)
     return HttpResponse("Just sent an alert to Box-Owner!!\n" + str(message))
@@ -273,7 +273,7 @@ def tamper_alert(request, name, alert_msg):
     else:
         text_body = 'error'
 
-    send_alert_util(user.user_phone, user.user_email, text_body, subject)
+    send_alert_util(user_phone, user_email, text_body, subject)
     return HttpResponse("Tampering Alert has been sent!")
 
 
@@ -281,12 +281,20 @@ def tamper_alert(request, name, alert_msg):
 def send_alert_util(user_phone, user_email, text_body, subject, media=""):
     # Twilio used for SMS
     client = Client(account_sid, auth_token)
-    message = client.messages.create(
-        body=text_body,
-        from_='+19033548375',
-        media_url=[media],
-        to=user_phone
-    )
+    if media != "":
+        message = client.messages.create(
+            body=text_body,
+            from_='+19033548375',
+            media_url=[media],
+            to=user_phone
+        )
+    else:
+        message = client.messages.create(
+            body=text_body,
+            from_='+19033548375',
+            to=user_phone
+        )
+
     
     # Email alert
     email_msg = text_body + '\n' + media
