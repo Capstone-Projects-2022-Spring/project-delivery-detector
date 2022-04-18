@@ -11,12 +11,14 @@ import time
 import threading
 import RPi.GPIO as GPIO
 from api_call import DeliveryDetectorBox
+from servo_firmware import DetectorServos
 from adxl import run_adxl
 
-buzz_pin = 21       # GPIO pin for the buzzer
-led_green_pin = 16  # GPIO pin for green LED
-led_red_pin = 20    # GPIO pin for red LED
-user_slots = []     # list for user - ordernumber - slot dict 
+buzz_pin = 21                      # GPIO pin for the buzzer
+led_green_pin = 16                 # GPIO pin for green LED
+led_red_pin = 20                   # GPIO pin for red LED
+user_slots = []                    # list for user - ordernumber - slot dict 
+detector_servos = DetectorServos() # detector servos object for controlling the door
 
 # Extract the QR code 
 def read_qr_code(box_num, num_slots=1):
@@ -25,8 +27,11 @@ def read_qr_code(box_num, num_slots=1):
     frame_rate = 10     
     count = 0
     set_up_multi_box(box, num_slots) if num_slots > 1 else set_up_single_box(box)
-    sensor_thread = sensor_thread_init(box_num)
-    sensor_thread.start()
+    print(len(user_slots))
+    detector_servos.set_num_servos(len(user_slots))
+    detector_servos.init_servos()
+    #sensor_thread = sensor_thread_init(box_num)
+    #sensor_thread.start()
     while (True):
         ret, image = vid.read()
         # Only extract the text after a certain number of frames
@@ -144,6 +149,8 @@ def package_delivery(box, user_name, order_number):
             box.send_alert(user_name, order_number, user['slot'])
             user['order_numbers'].append(order_number)
             led_green_light()
+            detector_servos.unlock_slot_door(int(user['slot']))
+            detector_servos.lock_slot_door(int(user['slot']))
             led_red_light()
             return
 
@@ -155,6 +162,8 @@ def package_pickup(box, user_name, order_number):
                 # unlock the box
                 print("UNLOCK THE BOX")
                 led_green_light()
+                detector_servos.unlock_slot_door(int(user['slot']))
+                detector_servos.lock_slot_door(int(user['slot']))
                 led_red_light()
                 return
 
@@ -188,13 +197,13 @@ def set_up_multi_box(box, num_slots):
         orders = user_order_dict[user] if user in user_order_dict.keys() else -1 
         user_slots.append({'user_name': user, 'order_numbers': orders, 'slot': slot_index})
         slot_index += 1
-    print(user_slots)
+    
 
 # Turn on the green LED on and the red LED off
 def led_green_light():
     GPIO.output(led_green_pin, GPIO.HIGH)
     GPIO.output(led_red_pin, GPIO.LOW)
-    time.sleep(20)
+    time.sleep(2)
 
 # Turn on the red LED
 def led_red_light():
@@ -250,6 +259,7 @@ def gpio_init():
     GPIO.setup(led_green_pin, GPIO.OUT)
     GPIO.setup(led_red_pin, GPIO.OUT)
     GPIO.setup(buzz_pin, GPIO.OUT)
+
 
 
 # Check if this script is being run directly 
