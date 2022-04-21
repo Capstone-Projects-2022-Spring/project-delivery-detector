@@ -10,6 +10,7 @@ class DetectorServos():
         self.num_servos = num_servos
         self.servos = ServoKit(channels=16)
         
+
     # Set the number of servos connected to the driver
     # Can be used by the client device when initalizing
     def set_num_servos(self, num_servos):
@@ -62,7 +63,7 @@ class DetectorServos():
 
 
 if __name__ == '__main__':
-    detector_servos = DetectorServos(3)
+    detector_servos = DetectorServos(9)
     detector_servos.init_servos()
     detector_servos.move_slot_door(0, 180)
     detector_servos.move_slot_door(0, 0)
