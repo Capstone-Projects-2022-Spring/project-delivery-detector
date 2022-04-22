@@ -75,7 +75,7 @@ class DetectorClient():
             #cv2.imshow("Image", image)
             #cv2.waitKey(2000)
             if decoded_text != '':
-                check_qr_text(decoded_text)
+                self.check_qr_text(decoded_text)
             #cv2.destroyAllWindows()
         else:
             print("QR code not detected")
@@ -126,13 +126,25 @@ class DetectorClient():
             return
         else:
             for user in self.user_slots:
-                if user_name == user['user_name']:
+                if user['user_name'] == user_name:
+                    if is_old_qr_code(user, order_number): return
                     self.box.send_alert(user_name, order_number, user['slot'])
                     user['order_numbers'].append(order_number)
                     self.led_green_light()
                     self.detector_servos.unlock_slot_door(int(user['slot']))
                     self.detector_servos.lock_slot_door(int(user['slot']))
                     self.led_red_light()
+
+    
+    # Check if a QR code is being used twice by a delivery person
+    def is_old_qr_code(self, user, order_number):
+        for order in user['order_numbers']:
+            if int(order_number) == int(order):
+                print('ERROR - DELIVERY PERSON')
+                box.send_tamper_alert(user_name, 'qr')
+                flash_red_leds(5)
+                return True
+        return False
 
 
     # Pick up a package to a user assigned to a multi user box
@@ -193,6 +205,16 @@ class DetectorClient():
     def led_red_light(self):
         GPIO.output(self.led_red_pin, GPIO.HIGH)
         GPIO.output(self.led_green_pin, GPIO.LOW)
+
+
+    # Flash the red LEDs
+    def flash_red_leds(num):
+        GPIO.output(self.led_green_pin, GPIO.LOW)
+        for i in range(num):
+            GPIO.output(self.led_red_pin, GPIO.HIGH)
+            time.sleep(4)
+            GPIO.output(self.led_red_pin, GPIO.HIGH)
+            time.sleep(2)
 
 
     # Run the buzzer for demo purposes 
