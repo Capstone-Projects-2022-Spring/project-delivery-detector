@@ -37,7 +37,7 @@ class DetectorClient():
         GPIO.setup(self.led_green_pin, GPIO.OUT)
         GPIO.setup(self.led_red_pin, GPIO.OUT)
         GPIO.setup(self.buzz_pin, GPIO.OUT)
-        self.init_box(self) 
+        self.init_box() 
         self.detector_servos.set_num_servos(len(self.user_slots))
         self.detector_servos.init_servos()
         #sensor_thread = sensor_thread_init()
@@ -123,6 +123,7 @@ class DetectorClient():
         if self.box.bad_order_num(user_name, order_number): 
             print('ERROR: ORDER NUMBER ' + str(order_number) + ' IS NOT VALID')
             self.box.send_tamper_alert(user_name, 'qr')
+            self.flash_red_leds(5)
             return
         else:
             for user in self.user_slots:
@@ -141,8 +142,8 @@ class DetectorClient():
         for order in user['order_numbers']:
             if int(order_number) == int(order):
                 print('ERROR - DELIVERY PERSON')
-                box.send_tamper_alert(user_name, 'qr')
-                flash_red_leds(5)
+                self.box.send_tamper_alert(user['user_name'], 'qr')
+                self.flash_red_leds(15)
                 return True
         return False
 
@@ -151,7 +152,7 @@ class DetectorClient():
     def package_pickup(self, user_name, order_number):
         for user in self.user_slots:
             if user_name == user['user_name']:
-                if not box.bad_order_num(user_name, order_number):
+                if not self.box.bad_order_num(user_name, order_number):
                     # unlock the box
                     print("UNLOCK THE BOX")
                     self.led_green_light()
@@ -208,13 +209,14 @@ class DetectorClient():
 
 
     # Flash the red LEDs
-    def flash_red_leds(num):
+    def flash_red_leds(self, num):
         GPIO.output(self.led_green_pin, GPIO.LOW)
         for i in range(num):
             GPIO.output(self.led_red_pin, GPIO.HIGH)
-            time.sleep(4)
-            GPIO.output(self.led_red_pin, GPIO.HIGH)
-            time.sleep(2)
+            time.sleep(0.25)
+            GPIO.output(self.led_red_pin, GPIO.LOW)
+            time.sleep(0.25)
+        GPIO.output(self.led_red_pin, GPIO.HIGH)
 
 
     # Run the buzzer for demo purposes 
@@ -229,6 +231,6 @@ class DetectorClient():
 
 
 # Check if this script is being run directly
-if __name__ == 'main':
+if __name__ == '__main__':
     detector_client = DetectorClient(box_num=1, num_slots=9)
     detector_client.run()
