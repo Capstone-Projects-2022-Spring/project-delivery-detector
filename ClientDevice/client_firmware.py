@@ -127,7 +127,7 @@ class DetectorClient():
         else:
             for user in self.user_slots:
                 if user['user_name'] == user_name:
-                    if is_old_qr_code(user, order_number): return
+                    if self.is_old_qr_code(user, order_number): return
                     self.box.send_alert(user_name, order_number, user['slot'])
                     user['order_numbers'].append(order_number)
                     self.led_green_light()
