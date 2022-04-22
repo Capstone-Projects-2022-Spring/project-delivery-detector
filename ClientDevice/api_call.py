@@ -8,6 +8,7 @@ class DeliveryDetectorBox():
     def __init__(self, box_num):
         self.box_number = box_num
 
+
     # Check if this box is registered to a specific user 
     def check_user_box(self, name):
         # call the API 
@@ -26,6 +27,7 @@ class DeliveryDetectorBox():
             #lock_box()
             print('LOCK THE BOX')
 
+
     # Call the API endpoint for sending a alert 
     def send_alert(self, name, num, slot=-1):
         if slot >= 0:
@@ -34,9 +36,11 @@ class DeliveryDetectorBox():
             response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/send_alert/" + name + "/" + str(num) + "/")
         print(response.text)
 
+
     # Call the tamper API
     def send_tamper_alert(self, user_name, msg):
         response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/tamper_alert/" + user_name + "/" + msg + '/')
+
 
     # Set up this box with all the users assigned to it
     # Returns a list of all users assigned to this box
@@ -49,6 +53,7 @@ class DeliveryDetectorBox():
             user_list.append(res_obj[key])
         return user_list
 
+
     # Returns a JSON object of all orders
     def get_all_assigned_orders(self):
         user_dict = {}
@@ -58,6 +63,7 @@ class DeliveryDetectorBox():
             user_dict.update({key: res_obj[key]})
         return user_dict
 
+
     # Checks that an order number is valid and in the database
     def bad_order_num(self, name, order_num):
         response = requests.get("http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/check_order_num/" + name + "/" + str(order_num) + "/")
@@ -66,6 +72,7 @@ class DeliveryDetectorBox():
             return 0
         else:
             return 1
+
 
     # Clear an order number
     def clear_order_num(self, order_num):

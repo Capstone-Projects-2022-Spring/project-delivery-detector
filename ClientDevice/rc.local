@@ -20,6 +20,6 @@ fi
 
 # Run our python detector program on start-up
 echo "Here I am" > /home/pi/CIS_4398/project-delivery-detector/test.txt
-sudo bash -c '/usr/bin/python3 /home/pi/CIS_4398/project-delivery-detector/qr_code_reader.py' &
+sudo bash -c '/usr/bin/python3 /home/pi/CIS_4398/project-delivery-detector/client_firmware.py' &
 
 exit 0
