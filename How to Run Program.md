@@ -3,7 +3,7 @@
 The first thing that would have to be done is the landlord or overseer of the properties would have to order a locker box from the DeliveryDetector company and then set it up with it's own designation or call name for your tenants to use when they use the service. 
 
 Package Recipient:
-So, working with the mindset that we are the user that has ordered and is receiving the package. So, the recipient would buy something online and them opt for the DeliveryDetector method to get their package. Once that is done, they would be redirected to the SellerPortal Website (http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/), ![Website Homepage] 
+So, working with the mindset that we are the user that has ordered and is receiving the package. So, the recipient would buy something online and them opt for the DeliveryDetector method to get their package. Once that is done, they would be redirected to the Delivery Detector Website (http://detector-env.eba-epj2ey8y.us-east-2.elasticbeanstalk.com/), ![Website Homepage] 
 
 ![Website Homepage](https://user-images.githubusercontent.com/78056542/164817066-61b261f0-1aeb-4458-ac4f-60e33e6c5e8f.jpg)
 
